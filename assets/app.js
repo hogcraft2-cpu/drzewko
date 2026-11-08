@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const edit=document.body.dataset.mode==='editor', draftKey='drzewko-draft-v1',W=230,H=125,NS='http://www.w3.org/2000/svg';
-const apiBase=String(window.DRZEWKO_API_BASE||'').trim().replace(/\\/+$/,'');
+const apiBase=String(window.DRZEWKO_API_BASE||'').trim().replace(/\/+$/,'');
 const accessKey=edit?new URLSearchParams(location.hash.slice(1)).get('edit')||'':'';
 let remoteRevision=0, remoteState=apiBase?'connecting':'demo';
 const groups={wladza:['Władza','#b48b38','♛'],dwor:['Dwór','#688c78','❦'],wojsko:['Zbrojni','#98504a','⚔'],kosciol:['Kościół','#7a6687','✝'],gospodarstwo:['Gospodarstwo','#9d743f','✥']};
