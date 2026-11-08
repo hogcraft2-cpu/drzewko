@@ -26,7 +26,7 @@ function respond(data, status = 200, origin = '') {
     headers.set('Access-Control-Allow-Headers','Authorization, Content-Type');
     headers.set('Access-Control-Max-Age','600');
   }
-  return new Response(JSON.stringify(data), {status,headers});
+  return new Response(status===204?null:JSON.stringify(data), {status,headers});
 }
 async function equalSecret(candidate, actual) {
   // Hash both values and compare digests without an early exit.
