@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "title": "Regestr Dworu Kuttenberskiego",
+  "subtitle": "Urzędy, godności i zależności — Królestwo Czech, rok pański 1403",
+  "nodes": [
+    {
+      "id": "senior",
+      "title": "Lord (senior)",
+      "people": "Heinrich",
+      "group": "wladza",
+      "note": "",
+      "x": 1000,
+      "y": 65
+    },
+    {
+      "id": "namiestnik",
+      "title": "Namiestnik",
+      "people": "Ullrich",
+      "group": "wladza",
+      "note": "",
+      "x": 630,
+      "y": 290
+    },
+    {
+      "id": "kosciol",
+      "title": "Kościół",
+      "people": "Mathias",
+      "group": "kosciol",
+      "note": "",
+      "x": 1550,
+      "y": 290
+    },
+    {
+      "id": "szambelan",
+      "title": "Szambelan",
+      "people": "Cecylia",
+      "group": "dwor",
+      "note": "",
+      "x": 960,
+      "y": 290
+    },
+    {
+      "id": "dwor",
+      "title": "Dwór",
+      "people": "",
+      "group": "dwor",
+      "note": "",
+      "x": 1250,
+      "y": 290
+    },
+    {
+      "id": "kwatermistrz",
+      "title": "Kwatermistrz",
+      "people": "Izydor",
+      "group": "gospodarstwo",
+      "note": "",
+      "x": 245,
+      "y": 545
+    },
+    {
+      "id": "lowczy",
+      "title": "Wielki łowczy",
+      "people": "Friedrich",
+      "group": "gospodarstwo",
+      "note": "",
+      "x": 50,
+      "y": 800
+    },
+    {
+      "id": "zbrojmistrz",
+      "title": "Zbrojmistrz",
+      "people": "Betomir",
+      "group": "wojsko",
+      "note": "",
+      "x": 330,
+      "y": 800
+    },
+    {
+      "id": "kuchmistrz",
+      "title": "Kuchmistrz",
+      "people": "",
+      "group": "gospodarstwo",
+      "note": "",
+      "x": 610,
+      "y": 800
+    },
+    {
+      "id": "skarbnik",
+      "title": "Skarbnik",
+      "people": "Dobiesław",
+      "group": "wladza",
+      "note": "",
+      "x": 875,
+      "y": 800
+    },
+    {
+      "id": "opieka",
+      "title": "Opiekunka jałmużniczka",
+      "people": "Katarzyna",
+      "group": "kosciol",
+      "note": "",
+      "x": 1150,
+      "y": 800
+    },
+    {
+      "id": "karczma",
+      "title": "Karczma",
+      "people": "Marta z Ogrodu",
+      "group": "gospodarstwo",
+      "note": "",
+      "x": 1430,
+      "y": 800
+    },
+    {
+      "id": "rycerstwo",
+      "title": "Rycerstwo",
+      "people": "Adellar",
+      "group": "wojsko",
+      "note": "",
+      "x": 1530,
+      "y": 545
+    },
+    {
+      "id": "giermkowie",
+      "title": "Giermkowie",
+      "people": "",
+      "group": "wojsko",
+      "note": "",
+      "x": 1720,
+      "y": 800
+    },
+    {
+      "id": "straz",
+      "title": "Dowódca straży",
+      "people": "Pan Severyn",
+      "group": "wojsko",
+      "note": "",
+      "x": 1610,
+      "y": 1030
+    },
+    {
+      "id": "szlachta",
+      "title": "Szlachta nadworna",
+      "people": "Kaspian, Rene",
+      "group": "dwor",
+      "note": "",
+      "x": 1840,
+      "y": 290
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "senior",
+      "to": "namiestnik"
+    },
+    {
+      "id": "e1",
+      "from": "senior",
+      "to": "kosciol"
+    },
+    {
+      "id": "e2",
+      "from": "senior",
+      "to": "szambelan"
+    },
+    {
+      "id": "e3",
+      "from": "senior",
+      "to": "dwor"
+    },
+    {
+      "id": "e4",
+      "from": "namiestnik",
+      "to": "kwatermistrz"
+    },
+    {
+      "id": "e5",
+      "from": "kwatermistrz",
+      "to": "lowczy"
+    },
+    {
+      "id": "e6",
+      "from": "kwatermistrz",
+      "to": "zbrojmistrz"
+    },
+    {
+      "id": "e7",
+      "from": "kwatermistrz",
+      "to": "kuchmistrz"
+    },
+    {
+      "id": "e8",
+      "from": "szambelan",
+      "to": "skarbnik"
+    },
+    {
+      "id": "e9",
+      "from": "dwor",
+      "to": "opieka"
+    },
+    {
+      "id": "e10",
+      "from": "dwor",
+      "to": "karczma"
+    },
+    {
+      "id": "e11",
+      "from": "dwor",
+      "to": "rycerstwo"
+    },
+    {
+      "id": "e12",
+      "from": "dwor",
+      "to": "szlachta"
+    },
+    {
+      "id": "e13",
+      "from": "rycerstwo",
+      "to": "giermkowie"
+    },
+    {
+      "id": "e14",
+      "from": "rycerstwo",
+      "to": "straz"
+    }
+  ]
+}
