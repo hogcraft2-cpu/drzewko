@@ -18,3 +18,10 @@
 #shareDialog {max-width:min(620px,95vw);width:100%;}
 #shareDialog h2 {line-height:1.15;}
 #shareDialog .dialog-buttons {flex-wrap:wrap;}
+
+.publish .clone-link {
+  display:block; padding:12px 14px; border-radius:8px; border:0;
+  background:#d6ab62; color:#2c3f2f; text-align:center;
+  text-decoration:none; font-size:12px; font-weight:750;
+}
+.publish .clone-link:hover { background:#edc783; }
