@@ -23,6 +23,7 @@ Nie jest to nowy serwer ani podstrona dodawana do repozytorium: to **osobny URL 
 3. Kliknij **↗ Publikuj nowy link** na pasku albo **Publikuj jako osobny link** po prawej.
 4. W okienku kliknij **Kopiuj link** i wyślij go na Discordzie / znajomym. Przeglądający otworzą wersję **tylko do odczytu**, bez narzędzi edycji.
 5. Po następnych zmianach kliknij ponownie **Publikuj nowy link**, aby uzyskać **nowy URL**. Poprzedni nadal pokazuje niezmienioną wcześniejszą wersję.
+6. Osoba oglądająca publikację może kliknąć **Edytuj kopię drzewka**, wprowadzić własne zmiany i wydać **kolejny osobny link**. Nie nadpisze przez to pierwotnej publikacji.
 
 Zadania, role, opisy, osoby i połączenia znajdują się w adresie, nie znikną po zamknięciu przeglądarki **jeśli zachowasz pełny link**. Autor widzi też listę do 20 ostatnich linków na swoim urządzeniu (w pamięci przeglądarki, bez synchronizacji urządzeń).
 
