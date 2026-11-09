@@ -25,3 +25,9 @@
   text-decoration:none; font-size:12px; font-weight:750;
 }
 .publish .clone-link:hover { background:#edc783; }
+
+/* Publikacja jednoklikowa: długi adres pozostaje w rozwijanej kopii zapasowej. */
+.original-link { margin:12px 0 18px; }
+.original-link summary {cursor:pointer;font-size:11px;color:#695738;padding:6px 0;}
+.original-link .share-url {margin:9px 0 0;max-height:150px;}
+#linkStatus {margin:10px 0 0;line-height:1.55;font-size:11px;}
