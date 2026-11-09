@@ -24,7 +24,9 @@ Dla wersji zapisanych bezpośrednio w repozytorium można używać krótkich ide
 - Zapisany plik: `published/d1.json`.
 - Viewer pobiera dane wskazanego `published/<identyfikator>.json`, a edytor może otworzyć taką wersję jako własną kopię.
 
-Aby każdy mógł skracać własne wersje **bez konta, tokenu i serwera**, w edytorze po opublikowaniu dodałem przycisk **✂ Skróć link**. Otwiera on bezpłatną usługę [is.gd](https://is.gd/create.php), gdzie otrzymujesz krótki adres przekierowujący do konkretnej, zapisanej w linku wersji drzewka. Usługa jest zewnętrzna: otrzymuje pełny adres docelowy i przechowuje go, a link działa tylko dopóki ta usługa istnieje. Obsługuje adresy docelowe do 5000 znaków. To nie zapisuje nowych danych do repozytorium.
+**Publikacja i skrócenie odbywają się teraz automatycznie po jednym kliknięciu** przycisku **↗ Publikuj nowy link**. Edytor tworzy pełny adres zawierający drzewko, a następnie wywołuje API [is.gd](https://is.gd/apishorteningreference.php), żeby otrzymać krótki odnośnik (zwykle około 19 znaków). W okienku publikacji można go od razu skopiować lub otworzyć. **Nie trzeba klikać drugiego przycisku ani zakładać konta.**
+
+Usługa is.gd jest zewnętrzna: otrzymuje pełny adres docelowy drzewka i przechowuje go, a jej dostępność wpływa na działanie krótkiego linku. Przy problemach z usługą lub gdy pełny adres przekroczy limit 5000 znaków, aplikacja **automatycznie pokaże działający pełny link** zamiast blokować publikację. Długi link można też podejrzeć jako kopię zapasową pod krótkim. W pamięci przeglądarki zostaje historia skróceń, aby nie wysyłać drugi raz tego samego adresu do API. To nie zapisuje nowych danych do repozytorium.
 
 **Istotne ograniczenie:** automatyczne tworzenie krótkich linków **własnej domeny GitHub Pages** dla każdego użytkownika, bez uprawnień zapisu do repozytorium ani backendu, nie jest możliwe. Dla dodatkowych krótkich wersji pod `?s=...` trzeba dodać plik JSON do repozytorium. Istniejące długie linki `#pub=...` nadal działają bez usług zewnętrznych.
 
@@ -32,8 +34,8 @@ Aby każdy mógł skracać własne wersje **bez konta, tokenu i serwera**, w edy
 
 1. Otwórz **edytor**.
 2. Klikaj urzędy, edytuj nazwy i obsadę, dodawaj i usuwaj role. Przeciągnij karty, żeby je przemieścić; użyj przycisku **Połącz**, aby stworzyć nowe relacje.
-3. Kliknij **↗ Publikuj nowy link** na pasku albo **Publikuj jako osobny link** po prawej.
-4. W okienku kliknij **Kopiuj link** i wyślij go na Discordzie / znajomym. Przeglądający otworzą wersję **tylko do odczytu**, bez narzędzi edycji.
+3. Kliknij **↗ Publikuj nowy link** na pasku albo **Publikuj jako osobny link** po prawej. Aplikacja sama spróbuje wygenerować krótki adres przez is.gd.
+4. W okienku zobaczysz **gotowy krótki link**. Kliknij **Kopiuj link** i wyślij go na Discordzie / znajomym. Przeglądający otworzą wersję **tylko do odczytu**, bez narzędzi edycji.
 5. Po następnych zmianach kliknij ponownie **Publikuj nowy link**, aby uzyskać **nowy URL**. Poprzedni nadal pokazuje niezmienioną wcześniejszą wersję.
 6. Osoba oglądająca publikację może kliknąć **Edytuj kopię drzewka**, wprowadzić własne zmiany i wydać **kolejny osobny link**. Nie nadpisze przez to pierwotnej publikacji.
 
