@@ -32,9 +32,10 @@ let h=document.createElement('div');h.innerHTML='<div class="kicker">✥ &nbsp; 
 if(edit){let p=document.createElement('p');p.textContent='Zmiany zapisują się lokalnie jako szkic. Kliknij „Publikuj nowy link”, aby udostępnić osobną wersję do odczytu.';panel.appendChild(p);panel.append(field(n,'title','Stanowisko'),field(n,'people','Osoba / osoby'),field(n,'group','Kategoria','select'),field(n,'note','Opis i obowiązki','textarea'));let actions=document.createElement('div');actions.className='actions';let connect=document.createElement('button');connect.textContent='⤳ Połącz';connect.onclick=()=>{linkSource=n.id;render();toast('Wybierz drugi urząd')};let remove=document.createElement('button');remove.className='danger';remove.textContent='× Usuń';remove.onclick=()=>removeNode(n.id);actions.append(connect,remove);panel.appendChild(actions)}else{let p=document.createElement('p');p.innerHTML='<b>Obsada:</b> '+html(n.people||'Urząd nieobsadzony');panel.appendChild(p);let desc=document.createElement('p');desc.textContent=n.note||'Nie podano opisu urzędu.';panel.appendChild(desc)}
 let hr=document.createElement('hr');panel.appendChild(hr);let label=document.createElement('div');label.className='kicker';label.textContent='Zależności służbowe';panel.appendChild(label);let related=tree.edges.filter(e=>e.from===n.id||e.to===n.id);if(!related.length){let p=document.createElement('p');p.textContent='Nie dodano jeszcze żadnych relacji.';panel.appendChild(p)}for(let edge of related){let other=tree.nodes.find(o=>o.id===(edge.from===n.id?edge.to:edge.from));if(!other)continue;let row=document.createElement('div');row.className='connection';let txt=document.createElement('span');txt.textContent=(edge.from===n.id?'↓ Podległy: ':'↑ Zwierzchnik: ')+other.title;txt.style.cursor='pointer';txt.onclick=()=>choose(other.id);row.appendChild(txt);if(edit){let remove=document.createElement('span');remove.className='remove';remove.textContent='×';remove.title='Usuń połączenie';remove.onclick=()=>removeLine(edge.id);row.appendChild(remove)}panel.appendChild(row)}if(edit)publishCard(panel);else cloneCard(panel)}
 function cloneCard(panel){
- if(!window.DrzewkoLinks.isPublished())return;
+ const isSnapshot=new URLSearchParams(location.search).has('s');
+ if(!window.DrzewkoLinks.isPublished()&&!isSnapshot)return;
  const link=new URL('editor.html',window.location.href);
- link.search='';link.hash=location.hash;
+ link.search=location.search;link.hash=location.hash;
  const box=document.createElement('section');
  box.className='publish';
  box.innerHTML='<h3>Własna wersja</h3><p>Możesz otworzyć kopię tego opublikowanego drzewka w edytorze i nadać jej nowy adres. Oryginalny link pozostanie bez zmian.</p><a class="clone-link" target="_blank" rel="noopener noreferrer">✥ Edytuj kopię drzewka</a>';
@@ -80,6 +81,13 @@ async function publish(){
 async function load(){
  const published=await window.DrzewkoLinks.readLink();
  if(published)return normalize(published);
+ const snapshot=new URLSearchParams(location.search).get('s');
+ if(snapshot){
+  if(!/^[a-z0-9-]{1,48}$/.test(snapshot))throw Error('Nieprawidłowy identyfikator publikacji');
+  const response=await fetch('published/'+snapshot+'.json',{cache:'force-cache'});
+  if(!response.ok)throw Error('Nie znaleziono opublikowanej wersji');
+  return normalize(await response.json());
+ }
  const response=await fetch('data/tree.json?t='+Date.now(),{cache:'no-store'});
  if(!response.ok)throw Error('HTTP '+response.status);
  return normalize(await response.json());
@@ -96,7 +104,7 @@ async function init(){
  try{
   tree=await load();
   if(edit){
-   if(window.DrzewkoLinks.isPublished()){
+   if(window.DrzewkoLinks.isPublished()||new URLSearchParams(location.search).has('s')){
     el('footerStatus').textContent='● Edytujesz niezależną kopię opublikowanej wersji';
    }else{
     try{
@@ -105,8 +113,8 @@ async function init(){
     }catch(e){}
    }
   }else{
-   el('footerStatus').textContent=window.DrzewkoLinks.isPublished()?
-    '✓ Samodzielna publikacja · tylko do odczytu':'● Domyślna wersja drzewka · tylko do odczytu';
+   el('footerStatus').textContent=(window.DrzewkoLinks.isPublished()||new URLSearchParams(location.search).has('s'))?
+    '✓ Zapisana publikacja · tylko do odczytu':'● Domyślna wersja drzewka · tylko do odczytu';
   }
   render();requestAnimationFrame(fit);
  }catch(err){
