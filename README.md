@@ -16,6 +16,18 @@ https://hogcraft2-cpu.github.io/drzewko/index.html#pub=g.H4sI...
 
 Nie jest to nowy serwer ani podstrona dodawana do repozytorium: to **osobny URL tej samej strony z zapisanym stanem drzewka**. Zawartość publikacji jest zapakowana i zakodowana w części adresu po `#pub=`. Dlatego może być odczytana na innym urządzeniu **bez żadnego backendu**.
 
+## Krótkie linki
+
+Dla wersji zapisanych bezpośrednio w repozytorium można używać krótkich identyfikatorów:
+
+- **Wersja d1:** https://hogcraft2-cpu.github.io/drzewko/?s=d1
+- Zapisany plik: `published/d1.json`.
+- Viewer pobiera dane wskazanego `published/<identyfikator>.json`, a edytor może otworzyć taką wersję jako własną kopię.
+
+Aby każdy mógł skracać własne wersje **bez konta, tokenu i serwera**, w edytorze po opublikowaniu dodałem przycisk **✂ Skróć link**. Otwiera on bezpłatną usługę [is.gd](https://is.gd/create.php), gdzie otrzymujesz krótki adres przekierowujący do konkretnej, zapisanej w linku wersji drzewka. Usługa jest zewnętrzna: otrzymuje pełny adres docelowy i przechowuje go, a link działa tylko dopóki ta usługa istnieje. Obsługuje adresy docelowe do 5000 znaków. To nie zapisuje nowych danych do repozytorium.
+
+**Istotne ograniczenie:** automatyczne tworzenie krótkich linków **własnej domeny GitHub Pages** dla każdego użytkownika, bez uprawnień zapisu do repozytorium ani backendu, nie jest możliwe. Dla dodatkowych krótkich wersji pod `?s=...` trzeba dodać plik JSON do repozytorium. Istniejące długie linki `#pub=...` nadal działają bez usług zewnętrznych.
+
 ## Jak opublikować nowe drzewko
 
 1. Otwórz **edytor**.
