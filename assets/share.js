@@ -94,6 +94,72 @@
     catch { throw new Error('Uszkodzone dane w linku'); }
     return parsed;
   }
+  const SHORTENER_CACHE_KEY = 'drzewko-skrocone-linki-v1';
+  function getShortCache() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(SHORTENER_CACHE_KEY) || '[]');
+      return Array.isArray(rows) ? rows.filter(row =>
+        row && typeof row.original === 'string' &&
+        typeof row.short === 'string').slice(0,20) : [];
+    } catch { return []; }
+  }
+  /**
+   * Skrócenie jest wywoływane raz, wyłącznie po kliknięciu "Publikuj".
+   * is.gd udostępnia JSONP, dzięki czemu działa z GitHub Pages bez CORS i backendu.
+   * Przekazujemy zewnętrznej usłudze pełen (publiczny) URL publikacji.
+   */
+  function shortenLink(original) {
+    if (!/^https:\/\/hogcraft2-cpu\.github\.io\/drzewko\//.test(original)) {
+      return Promise.reject(new Error('Nieprawidłowy adres publikacji'));
+    }
+    if (original.length > 5000) {
+      return Promise.reject(new Error('Pełny adres przekracza limit 5000 znaków usługi is.gd'));
+    }
+    const cached = getShortCache().find(row => row.original === original);
+    if (cached && /^https:\/\/is\.gd\/[A-Za-z0-9_]+$/.test(cached.short)) {
+      return Promise.resolve(cached.short);
+    }
+    return new Promise((resolve, reject) => {
+      const callback = '__drzewkoShort' +
+        Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      const script = document.createElement('script');
+      let finished = false;
+      let timer;
+      function finish(error, value) {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timer);
+        script.remove();
+        try { delete window[callback]; } catch { window[callback] = undefined; }
+        if (error) reject(error);
+        else resolve(value);
+      }
+      window[callback] = data => {
+        if (data && typeof data.shorturl === 'string' &&
+            /^https:\/\/is\.gd\/[A-Za-z0-9_]+$/.test(data.shorturl)) {
+          const items = [
+            { original, short:data.shorturl }, ...getShortCache().filter(x => x.original !== original)
+          ].slice(0,20);
+          try { localStorage.setItem(SHORTENER_CACHE_KEY, JSON.stringify(items)); }
+          catch { /* Pamięć podręczna jest opcjonalna. */ }
+          finish(null, data.shorturl);
+        } else {
+          finish(new Error(data?.errormessage || 'Serwis skracania nie zwrócił linku'));
+        }
+      };
+      script.async = true;
+      script.referrerPolicy = 'no-referrer';
+      script.onerror = () => finish(new Error('Usługa skracania jest niedostępna'));
+      const api = new URL('https://is.gd/create.php');
+      api.searchParams.set('format', 'json');
+      api.searchParams.set('url', original);
+      api.searchParams.set('callback', callback);
+      script.src = api.href;
+      timer = setTimeout(() => finish(new Error('Przekroczono czas łączenia z is.gd')), 12000);
+      document.head.appendChild(script);
+    });
+  }
+
   function history() {
     try {
       const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -110,6 +176,6 @@
     try { localStorage.setItem(HISTORY_KEY, JSON.stringify(data)); }
     catch { /* User can still copy or download the link manually. */ }
   }
-  window.DrzewkoLinks = { makeLink, readLink, remember, history, isPublished: () =>
+  window.DrzewkoLinks = { makeLink, readLink, shortenLink, remember, history, isPublished: () =>
     new URLSearchParams(window.location.hash.slice(1)).has('pub') };
 })();
