@@ -1,8 +1,5 @@
 (()=>{'use strict';
 const edit=document.body.dataset.mode==='editor', draftKey='drzewko-draft-v1',W=230,H=125,NS='http://www.w3.org/2000/svg';
-const apiBase=String(window.DRZEWKO_API_BASE||'').trim().replace(/\/+$/,'');
-const accessKey=edit?new URLSearchParams(location.hash.slice(1)).get('edit')||'':'';
-let remoteRevision=0, remoteState=apiBase?'connecting':'demo';
 const groups={wladza:['Władza','#b48b38','♛'],dwor:['Dwór','#688c78','❦'],wojsko:['Zbrojni','#98504a','⚔'],kosciol:['Kościół','#7a6687','✝'],gospodarstwo:['Gospodarstwo','#9d743f','✥']};
 let tree=null,selected=null,selectedLine=null,linkSource=null,history=[],redoStack=[],query='',scale=1,ox=0,oy=0,dragging=null;
 const el=id=>document.getElementById(id), html=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -15,9 +12,9 @@ function snap(){history.push(JSON.stringify(tree));if(history.length>80)history.
 function buttons(){if(!edit)return;el('undo').disabled=!history.length;el('redo').disabled=!redoStack.length}
 function undo(){if(!history.length)return;redoStack.push(JSON.stringify(tree));tree=JSON.parse(history.pop());selectedLine=null;render();save();buttons()}
 function redo(){if(!redoStack.length)return;history.push(JSON.stringify(tree));tree=JSON.parse(redoStack.pop());selectedLine=null;render();save();buttons()}
-function setup(){el('app').innerHTML='<header class="top"><a class="brand" href="index.html"><b>✥</b>REGESTR DWORU</a><small>Królestwo Czech · Anno Domini MCDIII</small>'+(edit?'<a class="nav" href="index.html">↗ Widok publiczny</a>':'<span class="nav nav-static">Tylko do odczytu</span>')+'</header><section class="hero"><div><div class="eyebrow">Ziemie Kuttenberskie · Rok Pański 1403</div><h1 id="title">Regestr Dworu</h1><p id="subtitle"></p></div><div class="count"><b id="totals">0</b><span>Urzędów w regestrze</span></div></section><main class="work"><section class="left"><div class="tools">'+(edit?'<button id="saveRemote" class="primary">☁ Zapisz online</button><button id="add">＋ Nowy urząd</button><button id="link">⤳ Połącz</button><button id="layout">⊞ Rozmieść</button><button id="undo">↶ Cofnij</button><button id="redo">↷ Ponów</button><button id="import">↓ Import</button><button id="export">↑ Eksport</button><input type="file" accept=".json,application/json" id="importFile" hidden>':'<button id="reload">↻ Odśwież</button>')+'<input id="search" type="search" placeholder="Szukaj roli lub osoby…" aria-label="Wyszukaj"><div class="push"><button id="minus">−</button><b id="zoomLabel">100%</b><button id="plus">＋</button><button id="fit">⛶ Dopasuj</button><button id="full">⤢</button></div></div><div id="canvas" class="canvas"><div id="world" class="world"><svg id="lines" class="lines"><defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M1 1 L5 3 L1 5" fill="none" stroke="#a68a58" stroke-width="1"/></marker></defs></svg><div id="cards" class="cards"></div></div><div id="hint" class="hint"></div></div><div class="legend"><strong>Legenda</strong>'+Object.entries(groups).map(([k,v])=>'<span><i style="--color:'+v[1]+'"></i>'+v[0]+'</span>').join('')+'</div></section><aside class="panel" id="panel"></aside></main><footer class="footer"><span>✥ &nbsp; REGESTR DWORU KUTTENBERSKIEGO</span><span id="footerStatus">'+(edit?'Wersja robocza':'Publiczny odczyt bez edycji')+'</span></footer><div class="toast" id="toast"></div>';
+function setup(){el('app').innerHTML='<header class="top"><a class="brand" href="index.html"><b>✥</b>REGESTR DWORU</a><small>Królestwo Czech · Anno Domini MCDIII</small>'+(edit?'<a class="nav" href="index.html">↗ Widok publiczny</a>':'<span class="nav nav-static">Tylko do odczytu</span>')+'</header><section class="hero"><div><div class="eyebrow">Ziemie Kuttenberskie · Rok Pański 1403</div><h1 id="title">Regestr Dworu</h1><p id="subtitle"></p></div><div class="count"><b id="totals">0</b><span>Urzędów w regestrze</span></div></section><main class="work"><section class="left"><div class="tools">'+(edit?'<button id="saveRemote" class="primary">↗ Publikuj nowy link</button><button id="add">＋ Nowy urząd</button><button id="link">⤳ Połącz</button><button id="layout">⊞ Rozmieść</button><button id="undo">↶ Cofnij</button><button id="redo">↷ Ponów</button><button id="import">↓ Import</button><button id="export">↑ Eksport</button><input type="file" accept=".json,application/json" id="importFile" hidden>':'<button id="reload">↻ Odśwież</button>')+'<input id="search" type="search" placeholder="Szukaj roli lub osoby…" aria-label="Wyszukaj"><div class="push"><button id="minus">−</button><b id="zoomLabel">100%</b><button id="plus">＋</button><button id="fit">⛶ Dopasuj</button><button id="full">⤢</button></div></div><div id="canvas" class="canvas"><div id="world" class="world"><svg id="lines" class="lines"><defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M1 1 L5 3 L1 5" fill="none" stroke="#a68a58" stroke-width="1"/></marker></defs></svg><div id="cards" class="cards"></div></div><div id="hint" class="hint"></div></div><div class="legend"><strong>Legenda</strong>'+Object.entries(groups).map(([k,v])=>'<span><i style="--color:'+v[1]+'"></i>'+v[0]+'</span>').join('')+'</div></section><aside class="panel" id="panel"></aside></main><footer class="footer"><span>✥ &nbsp; REGESTR DWORU KUTTENBERSKIEGO</span><span id="footerStatus">'+(edit?'Wersja robocza':'Publiczny odczyt bez edycji')+'</span></footer><div class="toast" id="toast"></div>'+(edit?'<dialog id="shareDialog"><h2>✥ Opublikowano wersję</h2><p>Ta wersja drzewka ma swój własny, trwały adres. Skopiuj go i wyślij innym. Po dalszych zmianach w edytorze utworzysz nowy adres, a poprzedni nadal pozostanie dostępny.</p><label class="field"><span>Publiczny adres wersji</span><textarea id="publishedUrl" class="share-url" readonly rows="3"></textarea></label><div class="dialog-buttons"><button id="closeShare">Zamknij</button><button id="openPublished">↗ Podgląd</button><button class="primary" id="copyPublished">Kopiuj link</button></div></dialog>':'');
 el('plus').onclick=()=>zoomAt(1.2,el('canvas').clientWidth/2,el('canvas').clientHeight/2);el('minus').onclick=()=>zoomAt(1/1.2,el('canvas').clientWidth/2,el('canvas').clientHeight/2);el('fit').onclick=fit;el('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():el('canvas').requestFullscreen().catch(()=>toast('Pełny ekran niedostępny'));el('search').oninput=e=>{query=e.target.value.toLocaleLowerCase('pl');drawNodes();drawLines()};let area=el('canvas');area.addEventListener('wheel',e=>{e.preventDefault();let r=area.getBoundingClientRect();zoomAt(e.deltaY<0?1.13:1/1.13,e.clientX-r.left,e.clientY-r.top)},{passive:false});area.onpointerdown=e=>{if(e.button!==0||e.target.closest('.node')||e.target.classList.contains('hit'))return;let sx=e.clientX,sy=e.clientY,px=ox,py=oy;area.setPointerCapture(e.pointerId);function move(ev){ox=px+ev.clientX-sx;oy=py+ev.clientY-sy;transform()}function end(){area.removeEventListener('pointermove',move)}area.addEventListener('pointermove',move);area.addEventListener('pointerup',end,{once:true});area.addEventListener('pointercancel',end,{once:true})};
-if(edit){el('add').onclick=add;el('link').onclick=()=>{if(linkSource){linkSource=null;render();return}if(!selected){toast('Najpierw wybierz urząd');return}linkSource=selected;render();toast('Kliknij stanowisko docelowe, Esc anuluje')};el('layout').onclick=()=>{if(confirm('Automatycznie rozmieścić stanowiska? Można cofnąć.'))layout()};el('undo').onclick=undo;el('redo').onclick=redo;el('export').onclick=download;el('import').onclick=()=>el('importFile').click();el('importFile').onchange=importFile;el('saveRemote').onclick=publish;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&linkSource){linkSource=null;render()}if(e.target.matches('input,textarea,select'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}if(e.key==='Delete'&&selectedLine)removeLine(selectedLine)})}else el('reload').onclick=reload}
+if(edit){el('add').onclick=add;el('link').onclick=()=>{if(linkSource){linkSource=null;render();return}if(!selected){toast('Najpierw wybierz urząd');return}linkSource=selected;render();toast('Kliknij stanowisko docelowe, Esc anuluje')};el('layout').onclick=()=>{if(confirm('Automatycznie rozmieścić stanowiska? Można cofnąć.'))layout()};el('undo').onclick=undo;el('redo').onclick=redo;el('export').onclick=download;el('import').onclick=()=>el('importFile').click();el('importFile').onchange=importFile;el('saveRemote').onclick=publish;el('closeShare').onclick=()=>el('shareDialog').close();el('copyPublished').onclick=async()=>{let v=el('publishedUrl');try{await navigator.clipboard.writeText(v.value);toast('Skopiowano adres publikacji')}catch(e){v.focus();v.select();toast('Zaznaczony link skopiuj ręcznie: Ctrl+C')}};el('openPublished').onclick=()=>window.open(el('publishedUrl').value,'_blank','noopener,noreferrer');document.addEventListener('keydown',e=>{if(e.key==='Escape'&&linkSource){linkSource=null;render()}if(e.target.matches('input,textarea,select'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}if(e.key==='Delete'&&selectedLine)removeLine(selectedLine)})}else el('reload').onclick=reload}
 function stats(){el('title').textContent=tree.title;el('subtitle').textContent=tree.subtitle;el('totals').textContent=tree.nodes.length}
 function transform(){el('world').style.transform='translate('+ox+'px,'+oy+'px) scale('+scale+')';el('zoomLabel').textContent=Math.round(scale*100)+'%'}
 function zoomAt(k,x,y){let next=Math.max(.2,Math.min(2.2,scale*k)),r=next/scale;ox=x-(x-ox)*r;oy=y-(y-oy)*r;scale=next;transform()}
@@ -34,7 +31,22 @@ function panel(){let panel=el('panel');panel.replaceChildren();let n=tree.nodes.
 let h=document.createElement('div');h.innerHTML='<div class="kicker">✥ &nbsp; Karta urzędu</div><h2 id="panelTitle">'+html(n.title)+'</h2><span class="tag">'+group(n)[2]+' '+group(n)[0]+'</span>';panel.appendChild(h);
 if(edit){let p=document.createElement('p');p.textContent='Wprowadzane zmiany zapisują się lokalnie. Aby pojawiły się na stronie publicznej, musisz je opublikować.';panel.appendChild(p);panel.append(field(n,'title','Stanowisko'),field(n,'people','Osoba / osoby'),field(n,'group','Kategoria','select'),field(n,'note','Opis i obowiązki','textarea'));let actions=document.createElement('div');actions.className='actions';let connect=document.createElement('button');connect.textContent='⤳ Połącz';connect.onclick=()=>{linkSource=n.id;render();toast('Wybierz drugi urząd')};let remove=document.createElement('button');remove.className='danger';remove.textContent='× Usuń';remove.onclick=()=>removeNode(n.id);actions.append(connect,remove);panel.appendChild(actions)}else{let p=document.createElement('p');p.innerHTML='<b>Obsada:</b> '+html(n.people||'Urząd nieobsadzony');panel.appendChild(p);let desc=document.createElement('p');desc.textContent=n.note||'Nie podano opisu urzędu.';panel.appendChild(desc)}
 let hr=document.createElement('hr');panel.appendChild(hr);let label=document.createElement('div');label.className='kicker';label.textContent='Zależności służbowe';panel.appendChild(label);let related=tree.edges.filter(e=>e.from===n.id||e.to===n.id);if(!related.length){let p=document.createElement('p');p.textContent='Nie dodano jeszcze żadnych relacji.';panel.appendChild(p)}for(let edge of related){let other=tree.nodes.find(o=>o.id===(edge.from===n.id?edge.to:edge.from));if(!other)continue;let row=document.createElement('div');row.className='connection';let txt=document.createElement('span');txt.textContent=(edge.from===n.id?'↓ Podległy: ':'↑ Zwierzchnik: ')+other.title;txt.style.cursor='pointer';txt.onclick=()=>choose(other.id);row.appendChild(txt);if(edit){let remove=document.createElement('span');remove.className='remove';remove.textContent='×';remove.title='Usuń połączenie';remove.onclick=()=>removeLine(edge.id);row.appendChild(remove)}panel.appendChild(row)}if(edit)publishCard(panel)}
-function publishCard(panel){let div=document.createElement('section');div.className='publish';let ready=!!apiBase&&!!accessKey;div.innerHTML='<h3>Zapis wspólnego drzewka</h3><p>'+(ready?'Masz link edycyjny. Kliknij, aby zapisać zmiany dla wszystkich.':'Brak '+(!apiBase?'adresu API. Właściciel musi jednorazowo skonfigurować Cloudflare Worker i assets/config.js.':'klucza w linku edycyjnym. Poproś właściciela o prywatny adres strony.'))+'</p><button type="button" id="openPublish">☁ Zapisz online</button><p class="status">Zmiany robocze są zapisywane lokalnie do chwili publikacji.</p>';panel.appendChild(div);el('openPublish').onclick=publish}
+function publishCard(panel){
+ let box=document.createElement('section');box.className='publish';
+ box.innerHTML='<h3>✥ Nowa publikacja</h3><p>Utwórz publiczny, tylko do odczytu adres z aktualnym stanem drzewka. Nie wymaga tokenu GitHub ani zewnętrznej bazy. Każda publikacja zachowuje własną wersję.</p><button type="button" id="openPublish">↗ Publikuj jako osobny link</button>';
+ panel.appendChild(box);
+ el('openPublish').onclick=publish;
+ let previous=window.DrzewkoLinks.history();
+ if(previous.length){
+  let wrapper=document.createElement('section');
+  wrapper.className='saved-links';
+  wrapper.innerHTML='<h3>Twoje ostatnie publikacje</h3><p>Lista zapisuje się tylko w tej przeglądarce. Zachowaj też skopiowane linki.</p>'+previous.slice(0,6).map(item=>
+   '<a target="_blank" rel="noopener noreferrer" href="'+html(item.url)+'" title="Otwórz publiczną wersję">'+
+   '<b>'+html(item.title)+'</b><small>'+html(item.savedAt.slice(0,10))+' · '+Number(item.count)+' stanowisk</small></a>'
+  ).join('');
+  panel.appendChild(wrapper);
+ }
+}
 function removeNode(id){let n=tree.nodes.find(n=>n.id===id);if(!confirm('Usunąć urząd „'+n.title+'” i jego połączenia?'))return;snap();tree.nodes=tree.nodes.filter(n=>n.id!==id);tree.edges=tree.edges.filter(e=>e.from!==id&&e.to!==id);selected=null;save();render();toast('Urząd usunięty')}
 function removeLine(id){snap();tree.edges=tree.edges.filter(e=>e.id!==id);selectedLine=null;save();render();toast('Połączenie usunięte')}
 function add(){snap();let parent=tree.nodes.find(n=>n.id===selected),x=parent?parent.x+250:870,y=parent?parent.y+180:280;for(let i=0;i<30;i++){if(!tree.nodes.some(n=>Math.abs(n.x-x)<220&&Math.abs(n.y-y)<115))break;x+=255;if(x>2100){x=80;y+=180}}let id=unique('role');tree.nodes.push({id,title:'Nowy urząd',people:'',group:'dwor',note:'',x,y});if(parent)tree.edges.push({id:unique('edge'),from:parent.id,to:id});selected=id;save();render();fit();let input=el('panel').querySelector('.field input');if(input){input.focus();input.select()}toast('Dodano urząd')}
@@ -42,76 +54,32 @@ function layout(){snap();let levels=new Map(),q=[],depth=new Map(),incoming=new 
 function download(){let blob=new Blob([JSON.stringify(tree,null,2)+'\n'],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='drzewko-dworu.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);toast('Pobrano plik JSON')}
 async function importFile(e){let f=e.target.files?.[0];if(!f)return;try{let next=normalize(JSON.parse(await f.text()));if(!confirm('Zastąpić aktualne drzewko importowanym plikiem?'))return;snap();tree=next;selected=null;selectedLine=null;linkSource=null;save();render();fit();toast('Zaimportowano drzewko')}catch(err){toast('Błąd importu: '+err.message)}finally{e.target.value=''}}
 async function publish(){
- if(!apiBase){toast('Brak skonfigurowanego API. Zobacz instrukcję w README na GitHubie.');return}
- if(!accessKey){toast('Brak uprawnień: otwórz prywatny link edycyjny od właściciela.');return}
  const button=el('saveRemote');
- button.disabled=true;button.textContent='⏳ Zapisuję…';
+ if(!button)return;
+ button.disabled=true;button.textContent='Przygotowuję link…';
  try{
-  const response=await fetch(apiBase+'/tree',{
-   method:'PUT',
-   headers:{'Content-Type':'application/json','Authorization':'Bearer '+accessKey},
-   body:JSON.stringify({baseRevision:remoteRevision,tree:normalize(tree)}),
-   cache:'no-store'
-  });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(response.status===409?
-    'Konflikt wersji: ktoś już zapisał zmiany. Twój szkic pozostał lokalnie. Wyeksportuj go przed odświeżeniem.'
-    :data.error||'Nie udało się zapisać (HTTP '+response.status+')');
-  remoteRevision=data.revision;
-  remoteState='online';
-  localStorage.removeItem(draftKey);
-  el('footerStatus').textContent='✓ Zapisano online · wersja '+remoteRevision;
-  toast('Zapisano! Widok publiczny pobierze nową wersję automatycznie.');
- }catch(err){
-  el('footerStatus').textContent='● Nie opublikowano · szkic lokalny';
-  toast(err.message);
- }finally{button.disabled=false;button.textContent='☁ Zapisz online'}
-}
-async function localSeed(){
- const r=await fetch('data/tree.json?t='+Date.now(),{cache:'no-store'});
- if(!r.ok)throw Error('Błąd pobierania danych startowych: '+r.status);
- return normalize(await r.json());
+  const url=await window.DrzewkoLinks.makeLink(normalize(tree));
+  window.DrzewkoLinks.remember(url,tree.title,tree.nodes.length);
+  el('publishedUrl').value=url;
+  el('footerStatus').textContent='✓ Opublikowano osobny link · szkic pozostaje w edytorze';
+  el('shareDialog').showModal();
+  toast('Nowa wersja ma własny adres. Skopiuj link, aby ją udostępnić.');
+ }catch(err){toast('Nie udało się opublikować: '+err.message)}
+ finally{button.disabled=false;button.textContent='↗ Publikuj nowy link'}
 }
 async function load(){
- if(!apiBase){remoteState='demo';return localSeed()}
- try{
-  const response=await fetch(apiBase+'/tree?t='+Date.now(),{cache:'no-store'});
-  if(response.status===404){remoteRevision=0;remoteState='empty';return localSeed()}
-  if(!response.ok)throw Error('API HTTP '+response.status);
-  const data=await response.json();
-  remoteRevision=data.revision;
-  remoteState='online';
-  return normalize(data.tree);
- }catch(err){
-  remoteState='offline';
-  console.warn('Nie można połączyć z API drzewka:',err);
-  return localSeed();
- }
+ const published=await window.DrzewkoLinks.readLink();
+ if(published)return normalize(published);
+ const response=await fetch('data/tree.json?t='+Date.now(),{cache:'no-store'});
+ if(!response.ok)throw Error('HTTP '+response.status);
+ return normalize(await response.json());
 }
 async function reload(){
  try{
-  if(edit&&localStorage.getItem(draftKey)&&
-     !confirm('Masz lokalny szkic. Odświeżenie może go zastąpić. Kontynuować?'))return;
-  tree=await load();selected=null;selectedLine=null;render();fit();
-  el('footerStatus').textContent=remoteState==='online'?'✓ Pobrano wersję '+remoteRevision:'Tryb podglądu / offline';
-  toast('Pobrano schemat');
+  if(edit&&localStorage.getItem(draftKey) &&
+   !confirm('Masz lokalny szkic. Odświeżenie może go zastąpić. Kontynuować?'))return;
+  tree=await load();selected=null;selectedLine=null;render();fit();toast('Załadowano drzewko');
  }catch(err){toast('Nie można odświeżyć: '+err.message)}
-}
-async function poll(){
- if(edit||!apiBase||!tree||document.hidden)return;
- try{
-  const response=await fetch(apiBase+'/tree?t='+Date.now(),{cache:'no-store'});
-  if(!response.ok)return;
-  const data=await response.json();
-  if(data.revision!==remoteRevision){
-   const updated=normalize(data.tree);
-   remoteRevision=data.revision;remoteState='online';tree=updated;
-   if(!tree.nodes.some(n=>n.id===selected))selected=null;
-   render();
-   toast('Drzewko zostało zaktualizowane.');
-  }
-  el('footerStatus').textContent='● Wersja publiczna '+remoteRevision+' · aktualna';
- }catch(err){el('footerStatus').textContent='Nie udało się sprawdzić aktualizacji'}
 }
 async function init(){
  setup();
@@ -120,21 +88,15 @@ async function init(){
   if(edit){
    try{
     const draft=localStorage.getItem(draftKey);
-    if(draft){tree=normalize(JSON.parse(draft));el('footerStatus').textContent='● Przywrócono lokalny szkic'}
+    if(draft){tree=normalize(JSON.parse(draft));el('footerStatus').textContent='● Przywrócono szkic z tej przeglądarki'}
    }catch(e){}
-   if(!apiBase)el('footerStatus').textContent='⚠ Brak konfiguracji API · zapis tylko lokalny';
-   else if(!accessKey)el('footerStatus').textContent='⚠ Brak prywatnego klucza w linku · zapis tylko lokalny';
-   else if(remoteState==='offline')el('footerStatus').textContent='⚠ API jest niedostępne · zapis lokalny';
   }else{
-   el('footerStatus').textContent=remoteState==='online'?'● Wersja publiczna '+remoteRevision:
-      remoteState==='demo'?'⚠ Podgląd przykładowych danych · API nie skonfigurowano':
-      remoteState==='empty'?'● Schemat startowy · czeka na pierwszą publikację':
-      '⚠ Backend niedostępny · dane startowe';
+   el('footerStatus').textContent=window.DrzewkoLinks.isPublished()?
+    '✓ Samodzielna publikacja · tylko do odczytu':'● Domyślna wersja drzewka · tylko do odczytu';
   }
   render();requestAnimationFrame(fit);
-  if(!edit&&apiBase)setInterval(poll,20000);
  }catch(err){
-  el('panel').innerHTML='<h2>Nie można wczytać schematu</h2><p>Sprawdź data/tree.json lub dostępność serwera HTTP.</p>';
+  el('panel').innerHTML='<h2>Nie można wczytać schematu</h2><p>'+html(err.message)+'. Użyj poprawnego linku lub otwórz domyślny widok.</p>';
   toast(err.message);
  }
 }
